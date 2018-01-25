@@ -5,15 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <style>
+    body {
+      background-color: #000;
+    }
+
+    div {
+    }
+
+    #canvas-container {
+      position: fixed;
+      left: 10px;
+      right: 10px;
+      top: 10px;
+      bottom: 10px;
+      outline: 10px solid #fff;
+    }
+
+    canvas {
+      outline: 5px solid red;
+    }
+  </style>
 </head>
 <body>
   <div id="canvas-container"></div>
   <script src="./src/index.js"></script>
   <script>
     var container = document.getElementById('canvas-container')
+    var block = container.getBoundingClientRect()
     var fworks = new Fireworks(container, {
-      width: 600,
-      height: 400,
+      width: block.width,
+      height: block.height,
       initialLaunchCount: 10
     });
   </script>

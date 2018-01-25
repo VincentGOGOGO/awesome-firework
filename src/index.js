@@ -1,4 +1,4 @@
-(function (root, factory) {
+(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
     // Node/CommonJS
     module.exports = factory();
@@ -10,19 +10,19 @@
     root.Fireworks = factory();
   }
 }(this, function factory() {
-  return function (node, settings) {
+  return function(node, settings) {
     settings = settings || {}
     var width = settings.width
     var height = settings.height
     var initialLaunchCount = settings.initialLaunchCount
-    /*=============================================================================*/
-    /* Utility
-    /*=============================================================================*/
+      /*=============================================================================*/
+      /* Utility
+      /*=============================================================================*/
     var self = this;
     var rand = function(rMi, rMa) { return ~~((Math.random() * (rMa - rMi + 1)) + rMi); }
     var hitTest = function(x1, y1, w1, h1, x2, y2, w2, h2) { return !(x1 + w1 < x2 || x2 + w2 < x1 || y1 + h1 < y2 || y2 + h2 < y1); };
     window.requestAnimFrame = function() { return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(a) { window.setTimeout(a, 1E3 / 60) } }();
-  
+
     /*=============================================================================*/
     /* Initialize
     /*=============================================================================*/
@@ -31,14 +31,14 @@
       self.oldTime = Date.now();
       self.canvas = document.createElement('canvas');
       self.canvasContainer = node;
-  
+
       self.canvas.onselectstart = function() {
         return false;
       };
-  
+
       self.canvas.width = self.cw = width;
       self.canvas.height = self.ch = height;
-  
+
       self.particles = [];
       self.partCount = settings.partCount || 30;
       self.fireworks = [];
@@ -59,19 +59,20 @@
       self.showShockwave = settings.showShockwave || false;
       self.showTarget = settings.showTarget || true;
       self.clearAlpha = settings.clearAlpha || 25;
-  
+
       self.canvasContainer.append(self.canvas);
       self.ctx = self.canvas.getContext('2d');
       self.ctx.lineCap = 'round';
       self.ctx.lineJoin = 'round';
       self.lineWidth = 1;
+      self.bindEvents();
       self.canvasLoop();
-  
+
       self.canvas.onselectstart = function() {
         return false;
       };
     };
-  
+
     /*=============================================================================*/
     /* Particle Constructor
     /*=============================================================================*/
@@ -94,31 +95,31 @@
       this.wind = (rand(0, self.partWind) - (self.partWind / 2)) / 25;
       this.lineWidth = self.lineWidth;
     };
-  
+
     Particle.prototype.update = function(index) {
       var radians = this.angle * Math.PI / 180;
       var vx = Math.cos(radians) * this.speed;
       var vy = Math.sin(radians) * this.speed + this.gravity;
       this.speed *= this.friction;
-  
+
       this.coordLast[2].x = this.coordLast[1].x;
       this.coordLast[2].y = this.coordLast[1].y;
       this.coordLast[1].x = this.coordLast[0].x;
       this.coordLast[1].y = this.coordLast[0].y;
       this.coordLast[0].x = this.x;
       this.coordLast[0].y = this.y;
-  
+
       this.x += vx * self.dt;
       this.y += vy * self.dt;
-  
+
       this.angle += this.wind;
       this.alpha -= this.decay;
-  
+
       if (!hitTest(0, 0, self.cw, self.ch, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2) || this.alpha < .05) {
         self.particles.splice(index, 1);
       }
     };
-  
+
     Particle.prototype.draw = function() {
       var coordRand = (rand(1, 3) - 1);
       self.ctx.beginPath();
@@ -127,7 +128,7 @@
       self.ctx.closePath();
       self.ctx.strokeStyle = 'hsla(' + this.hue + ', 100%, ' + this.brightness + '%, ' + this.alpha + ')';
       self.ctx.stroke();
-  
+
       if (self.flickerDensity > 0) {
         var inverseDensity = 50 - self.flickerDensity;
         if (rand(0, inverseDensity) === inverseDensity) {
@@ -140,7 +141,7 @@
         }
       }
     };
-  
+
     /*=============================================================================*/
     /* Create Particles
     /*=============================================================================*/
@@ -150,7 +151,7 @@
         self.particles.push(new Particle(x, y, hue));
       }
     };
-  
+
     /*=============================================================================*/
     /* Update Particles
     /*=============================================================================*/
@@ -161,7 +162,7 @@
         p.update(i);
       };
     };
-  
+
     /*=============================================================================*/
     /* Draw Particles
     /*=============================================================================*/
@@ -172,7 +173,7 @@
         p.draw();
       };
     };
-  
+
     /*=============================================================================*/
     /* Firework Constructor
     /*=============================================================================*/
@@ -200,10 +201,10 @@
       this.lineWidth = self.lineWidth;
       this.targetRadius = 1;
     };
-  
+
     Firework.prototype.update = function(index) {
       self.ctx.lineWidth = this.lineWidth;
-  
+
       vx = Math.cos(this.angle) * this.speed,
         vy = Math.sin(this.angle) * this.speed;
       this.speed *= 1 + this.acceleration;
@@ -213,7 +214,7 @@
       this.coordLast[1].y = this.coordLast[0].y;
       this.coordLast[0].x = this.x;
       this.coordLast[0].y = this.y;
-  
+
       if (self.showTarget) {
         if (this.targetRadius < 8) {
           this.targetRadius += .25 * self.dt;
@@ -221,7 +222,7 @@
           this.targetRadius = 1 * self.dt;
         }
       }
-  
+
       if (this.startX >= this.targetX) {
         if (this.x + vx <= this.targetX) {
           this.x = this.targetX;
@@ -237,7 +238,7 @@
           this.x += vx * self.dt;
         }
       }
-  
+
       if (this.startY >= this.targetY) {
         if (this.y + vy <= this.targetY) {
           this.y = this.targetY;
@@ -253,17 +254,17 @@
           this.y += vy * self.dt;
         }
       }
-  
+
       if (this.hitX && this.hitY) {
         var randExplosion = rand(0, 9);
         self.createParticles(this.targetX, this.targetY, this.hue);
         self.fireworks.splice(index, 1);
       }
     };
-  
+
     Firework.prototype.draw = function() {
       self.ctx.lineWidth = this.lineWidth;
-  
+
       var coordRand = (rand(1, 3) - 1);
       self.ctx.beginPath();
       self.ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
@@ -271,7 +272,7 @@
       self.ctx.closePath();
       self.ctx.strokeStyle = 'hsla(' + this.hue + ', 100%, ' + this.brightness + '%, ' + this.alpha + ')';
       self.ctx.stroke();
-  
+
       if (self.showTarget) {
         self.ctx.save();
         self.ctx.beginPath();
@@ -281,7 +282,7 @@
         self.ctx.stroke();
         self.ctx.restore();
       }
-  
+
       if (self.showShockwave) {
         self.ctx.save();
         self.ctx.translate(Math.round(this.x), Math.round(this.y));
@@ -294,14 +295,14 @@
         self.ctx.restore();
       }
     };
-  
+
     /*=============================================================================*/
     /* Create Fireworks
     /*=============================================================================*/
     self.createFireworks = function(startX, startY, targetX, targetY) {
       self.fireworks.push(new Firework(startX, startY, targetX, targetY));
     };
-  
+
     /*=============================================================================*/
     /* Update Fireworks
     /*=============================================================================*/
@@ -312,7 +313,7 @@
         f.update(i);
       };
     };
-  
+
     /*=============================================================================*/
     /* Draw Fireworks
     /*=============================================================================*/
@@ -323,7 +324,46 @@
         f.draw();
       };
     };
-  
+
+    /*=============================================================================*/
+    /* Events
+    /*=============================================================================*/
+    self.bindEvents = function() {
+      window.addEventListener('resize', function() {
+        clearTimeout(self.timeout);
+        self.timeout = setTimeout(function() {
+          self.ctx.lineCap = 'round';
+          self.ctx.lineJoin = 'round';
+          var block = self.canvasContainer.getBoundingClientRect()
+          self.canvas.width = self.cw = block.width;
+          self.canvas.height = self.ch = block.height;
+        }, 100);
+      });
+
+      self.canvas.addEventListener('mousedown', function(e) {
+        var randLaunch = rand(0, 5);
+        self.mx = e.pageX - self.canvas.offsetLeft;
+        self.my = e.pageY - self.canvas.offsetTop;
+        self.currentHue = rand(self.hueMin, self.hueMax);
+        self.createFireworks(self.cw / 2, self.ch, self.mx, self.my);
+        self.canvas.addEventListener('mousemove', self.mousemoveHandler);
+
+      });
+
+      self.canvas.addEventListener('mouseup', function(e) {
+        self.canvas.removeEventListener('mousemove', self.mousemoveHandler)
+      });
+
+    };
+
+    self.mousemoveHandler = function (e) {
+      var randLaunch = rand(0, 5);
+      self.mx = e.pageX - self.canvas.offsetLeft;
+      self.my = e.pageY - self.canvas.offsetTop;
+      self.currentHue = rand(self.hueMin, self.hueMax);
+      self.createFireworks(self.cw / 2, self.ch, self.mx, self.my);
+    }
+
     /*=============================================================================*/
     /* Clear Canvas
     /*=============================================================================*/
@@ -332,7 +372,7 @@
       self.fireworks = [];
       self.ctx.clearRect(0, 0, self.cw, self.ch);
     };
-  
+
     /*=============================================================================*/
     /* Delta
     /*=============================================================================*/
@@ -342,7 +382,7 @@
       self.dt = (self.dt > 5) ? 5 : self.dt;
       self.oldTime = newTime;
     }
-  
+
     /*=============================================================================*/
     /* Main Loop
     /*=============================================================================*/
@@ -358,9 +398,9 @@
       self.drawFireworks();
       self.drawParticles();
     };
-  
+
     self.init();
-  
+
     while (initialLaunchCount--) {
       setTimeout(function() {
         self.fireworks.push(new Firework(self.cw / 2, self.ch, rand(50, self.cw - 50), rand(50, self.ch / 2) - 50));
